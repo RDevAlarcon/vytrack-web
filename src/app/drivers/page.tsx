@@ -120,6 +120,7 @@ export default function DriversPage() {
                     <th className="py-2">Nombre</th>
                     <th className="py-2">Licencia</th>
                     <th className="py-2">Vencimiento</th>
+                    <th className="py-2 text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -128,6 +129,24 @@ export default function DriversPage() {
                       <td className="py-2">{d.name}</td>
                       <td className="py-2">{d.licenseNumber || '-'}</td>
                       <td className="py-2">{d.licenseExpiry ? new Date(d.licenseExpiry).toLocaleDateString() : '-'}</td>
+                      <td className="py-2 text-right">
+                        <Button
+                          variant="secondary"
+                          onClick={async () => {
+                            setError(null);
+                            setSuccess(null);
+                            try {
+                              await apiClient.delete(`/drivers/${d.id}`);
+                              queryClient.invalidateQueries({ queryKey: ['drivers'] });
+                            } catch (err: any) {
+                              const msg = err?.response?.data?.message || err?.message || 'Error al eliminar driver';
+                              setError(Array.isArray(msg) ? msg.join(', ') : msg);
+                            }
+                          }}
+                        >
+                          Eliminar
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
