@@ -12,6 +12,14 @@ const TileLayer = dynamic(() => import('react-leaflet').then((m) => m.TileLayer)
 const Marker = dynamic(() => import('react-leaflet').then((m) => m.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then((m) => m.Popup), { ssr: false });
 const Polyline = dynamic(() => import('react-leaflet').then((m) => m.Polyline), { ssr: false });
+import L from 'leaflet';
+
+const truckIcon = new L.Icon({
+  iconUrl: '/icons/truck.svg',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
 type LatLngExpression = [number, number];
 
 type LiveVehicle = {
@@ -62,7 +70,8 @@ export function FleetMap() {
     if (liveQuery.data && liveQuery.data.length > 0) {
       return [liveQuery.data[0].lat, liveQuery.data[0].lng];
     }
-    return [0, 0];
+    // Centro por defecto: Santiago, Chile
+    return [-33.45, -70.6667];
   }, [liveQuery.data]);
 
   const handleSelect = (vehicleId: string) => {
@@ -104,7 +113,7 @@ export function FleetMap() {
         <MapContainer center={center} zoom={3} className="h-full min-h-[400px] w-full rounded-lg">
           <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           {liveQuery.data?.map((v) => (
-            <Marker key={v.vehicleId} position={[v.lat, v.lng]}>
+            <Marker key={v.vehicleId} position={[v.lat, v.lng]} icon={truckIcon}>
               <Popup>
                 <div className="text-sm">
                   <div className="font-semibold">{v.vehiclePlate}</div>
