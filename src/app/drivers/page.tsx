@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { AppLayout } from '../../components/layout/AppLayout';
@@ -11,6 +12,7 @@ type Driver = {
   name: string;
   licenseNumber?: string;
   licenseExpiry?: string;
+  userEmail?: string;
 };
 
 async function fetchDrivers() {
@@ -22,17 +24,46 @@ type CreateDriverForm = {
   name: string;
   licenseNumber?: string;
   licenseExpiry?: string;
+  email: string;
+  password: string;
 };
 
 export default function DriversPage() {
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ['drivers'], queryFn: fetchDrivers });
-  const { register, handleSubmit, reset } = useForm<CreateDriverForm>();
+  const { register, handleSubmit, reset, formState } = useForm<CreateDriverForm>();
+  const { isSubmitting } = formState;
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const onSubmit = handleSubmit(async (form) => {
-    await apiClient.post('/drivers', form);
-    reset();
-    queryClient.invalidateQueries({ queryKey: ['drivers'] });
+    setError(null);
+    setSuccess(null);
+    try {
+      const driverRes = await apiClient.post('/drivers', {
+        name: form.name,
+        licenseNumber: form.licenseNumber,
+        licenseExpiry: form.licenseExpiry,
+      });
+      const driverId = driverRes.data?.id;
+      if (!driverId) {
+        throw new Error('No se obtuvo el ID del driver');
+      }
+
+      await apiClient.post('/users', {
+        email: form.email,
+        password: form.password,
+        role: 'DRIVER',
+        driverId,
+      });
+
+      setSuccess('Driver creado con acceso de login.');
+      reset();
+      queryClient.invalidateQueries({ queryKey: ['drivers'] });
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'Error al crear driver';
+      setError(Array.isArray(msg) ? msg.join(', ') : msg);
+    }
   });
 
   return (
@@ -41,6 +72,8 @@ export default function DriversPage() {
         <div className="rounded-lg bg-white p-4 shadow">
           <h2 className="text-lg font-semibold">Crear driver</h2>
           <form onSubmit={onSubmit} className="mt-4 space-y-3">
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            {success && <p className="text-sm text-green-600">{success}</p>}
             <div>
               <label className="text-sm text-gray-600">Nombre</label>
               <input className="mt-1 w-full rounded border px-3 py-2 text-sm" {...register('name', { required: true })} />
@@ -53,7 +86,25 @@ export default function DriversPage() {
               <label className="text-sm text-gray-600">Vencimiento</label>
               <input type="date" className="mt-1 w-full rounded border px-3 py-2 text-sm" {...register('licenseExpiry')} />
             </div>
-            <Button type="submit">Crear</Button>
+            <div>
+              <label className="text-sm text-gray-600">Correo electrónico (acceso app)</label>
+              <input
+                className="mt-1 w-full rounded border px-3 py-2 text-sm"
+                {...register('email', { required: true })}
+                type="email"
+              />
+            </div>
+            <div>
+              <label className="text-sm text-gray-600">Contraseña (acceso app)</label>
+              <input
+                className="mt-1 w-full rounded border px-3 py-2 text-sm"
+                {...register('password', { required: true, minLength: 6 })}
+                type="password"
+              />
+            </div>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Creando...' : 'Crear'}
+            </Button>
           </form>
         </div>
 
