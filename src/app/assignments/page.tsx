@@ -110,7 +110,9 @@ export default function AssignmentsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {assignments.data?.map((a) => (
+                  {assignments.data
+                    ?.filter((a) => a.status !== 'CANCELLED')
+                    .map((a) => (
                     <tr key={a.id} className="border-t">
                       <td className="py-2">{a.vehicle?.plate || a.vehicleId}</td>
                       <td className="py-2">{a.driver?.name || a.driverId}</td>
@@ -128,7 +130,7 @@ export default function AssignmentsPage() {
                         ))}
                       </td>
                     </tr>
-                  ))}
+                    ))}
                 </tbody>
               </table>
             </div>
