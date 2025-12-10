@@ -41,7 +41,7 @@ type CreateAssignmentForm = {
 
 export default function AssignmentsPage() {
   const queryClient = useQueryClient();
-  const assignments = useQuery({ queryKey: ['assignments'], queryFn: fetchAssignments });
+  const assignments = useQuery({ queryKey: ['assignments'], queryFn: fetchAssignments, refetchInterval: 5000 });
   const vehicles = useQuery({ queryKey: ['vehicles'], queryFn: fetchVehicles });
   const drivers = useQuery({ queryKey: ['drivers'], queryFn: fetchDrivers });
 
