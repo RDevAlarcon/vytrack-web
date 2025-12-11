@@ -15,10 +15,10 @@ const Polyline = dynamic(() => import('react-leaflet').then((m) => m.Polyline), 
 import L from 'leaflet';
 
 const truckIcon = new L.Icon({
-  iconUrl: '/icons/truck.svg',
-  iconSize: [28, 28],
-  iconAnchor: [14, 28],
-  popupAnchor: [0, -28],
+  iconUrl: '/icons/truck1.jpg',
+  iconSize: [32, 20],
+  iconAnchor: [16, 20],
+  popupAnchor: [0, -20],
 });
 type LatLngExpression = [number, number];
 
