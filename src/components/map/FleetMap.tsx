@@ -16,9 +16,9 @@ import L from 'leaflet';
 
 const truckIcon = new L.Icon({
   iconUrl: '/icons/ubicacion.png',
-  iconSize: [52, 52],
-  iconAnchor: [26, 52],
-  popupAnchor: [0, -52],
+  iconSize: [48, 48],
+  iconAnchor: [24, 48],
+  popupAnchor: [0, -48],
 });
 type LatLngExpression = [number, number];
 
@@ -74,6 +74,8 @@ export function FleetMap() {
     return [-33.45, -70.6667];
   }, [liveQuery.data]);
 
+  const zoom = liveQuery.data && liveQuery.data.length > 0 ? 12 : 11;
+
   const handleSelect = (vehicleId: string) => {
     setSelectedVehicle(vehicleId);
     queryClient.invalidateQueries({ queryKey: ['history', vehicleId] });
@@ -110,7 +112,7 @@ export function FleetMap() {
       </div>
 
       <div className="rounded-lg bg-white shadow lg:col-span-2">
-        <MapContainer center={center} zoom={3} className="h-full min-h-[400px] w-full rounded-lg">
+        <MapContainer center={center} zoom={zoom} className="h-full min-h-[400px] w-full rounded-lg">
           <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           {liveQuery.data?.map((v) => (
             <Marker key={v.vehicleId} position={[v.lat, v.lng]} icon={truckIcon}>
