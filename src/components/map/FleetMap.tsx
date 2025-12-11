@@ -15,7 +15,7 @@ const Polyline = dynamic(() => import('react-leaflet').then((m) => m.Polyline), 
 import L from 'leaflet';
 
 const truckIcon = new L.Icon({
-  iconUrl: '/icons/truck3.png',
+  iconUrl: '/icons/truck5.png',
   iconSize: [32, 20],
   iconAnchor: [16, 20],
   popupAnchor: [0, -20],
